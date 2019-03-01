@@ -10,18 +10,34 @@ function usage {
 Usage: $0 -p platforms
 Options
  -p PLATFORMS        Platforms to build (m=Mac, w=Windows, l=Linux)
+ -c CHANNEL          Channel to build (s=source, b=beta, r=release)
  -t                  add devtools
 DONE
 	exit 1
 }
 
 DEVTOOLS=0
+CHANNEL=""
 PLATFORM=""
-while getopts "p:t" opt; do
+while getopts "p:t:c:h" opt; do
 	case $opt in
 		t)
 			DEVTOOLS=1
 			;;
+		c)
+			for i in `seq 0 1 $((${#OPTARG}-1))`
+			do
+				case ${OPTARG:i:1} in
+					r) CHANNEL="release";;
+					b) CHANNEL="beta";;
+					s) CHANNEL="source";;
+					*)
+						echo "$0: Invalid channel option ${OPTARG:i:1}"
+						usage
+						;;
+				esac
+			done
+			;;		
 		p)
 			for i in `seq 0 1 $((${#OPTARG}-1))`
 			do
@@ -35,7 +51,10 @@ while getopts "p:t" opt; do
 						;;
 				esac
 			done
-			;;		
+			;;
+		h)
+			usage
+			;;
 		\?)
 			echo "Invalid option: -$OPTARG" >&2
 			exit 1
@@ -53,7 +72,9 @@ if [[ -z $PLATFORM ]]; then
 	fi
 fi
 
-CHANNEL="source"
+if [ "$CHANNEL" == "" ]; then
+    CHANNEL="source"
+fi
 
 VERSION=`perl -ne 'print and last if s/.*<em:version>(.{3}).+/\1/;' "$ZOTERO_SOURCE_DIR/install.rdf"`
 if [ $VERSION = "4.0" ]; then
