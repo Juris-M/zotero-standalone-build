@@ -618,6 +618,7 @@ if [ $BUILD_LINUX == 1 ]; then
 		${GFIND} "$APPDIR" -depth -type d -name .git -exec rm -rf {} \;
 		${GFIND} "$APPDIR" \( -name .DS_Store -or -name update.rdf \) -exec rm -f {} \;
 		${GFIND} "$APPDIR/extensions" -depth -type d -name build -exec rm -rf {} \;
+		${GFIND} "$APPDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
 		
 		if [ $PACKAGE == 1 ]; then
 			# Create tar
