@@ -71,9 +71,9 @@ INCR_PATH="$DIST_DIR/$INCR_FILENAME"
 mkdir -p "$DIST_DIR"
 # aws s3 cp $S3_URL $INCR_PATH >&2
 if [ "$OSTYPE" == "cygwin" ]; then
-    node $(cygpath -am ../deployer/index.js) -q -d "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME" $(cygpath -am "$INCR_PATH")
+    node $(cygpath -am ./deployer/index.js) -q -d "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME" $(cygpath -am "$INCR_PATH")
 else
-    node ../deployer/index.js -q -d "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME" "$INCR_PATH"
+    node ./deployer/index.js -q -d "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME" "$INCR_PATH"
 fi
 
 # Add version to file and reupload
