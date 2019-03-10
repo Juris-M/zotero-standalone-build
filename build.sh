@@ -24,9 +24,10 @@ CALLDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ## Sniff the channel from the code to be built
 set +e
 FULL_VERSION=`perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version.*/\1/;' "$ZOTERO_BUILD_DIR/xpi/build/staging/install.rdf"`
+
 IS_JURISM=$(echo $FULL_VERSION | grep -c '[0-9]m[0-9]')
 IS_SOURCE=$(echo $FULL_VERSION | grep -c 'SOURCE')
-IS_BETA=$(echo $FULL_VERSION | grep -c '\.m[0-9]\+-beta\.[0-9]\+')
+IS_BETA=$(echo $FULL_VERSION | grep -c 'm[0-9]\+-beta\.[0-9]')
 IS_RELEASE=$(echo $FULL_VERSION | grep -c '[0-9]m[0-9]\+$')
 set -e
 if [ $IS_JURISM -eq 1 ]; then
@@ -34,10 +35,11 @@ if [ $IS_JURISM -eq 1 ]; then
         UPDATE_CHANNEL="release"
     elif [ $IS_BETA -eq 1 ]; then
         UPDATE_CHANNEL="beta"
-    elif [ $IS_SOURCE ]; then
+    elif [ $IS_SOURCE -eq 1 ]; then
         UPDATE_CHANNEL="source"
     else
         echo Version in $ZOTERO_BUILD_DIR/build/staging/install.rdf is neither release, nor beta, nor source.
+	exit 1
     fi
 else
     echo Content at $ZOTERO_BUILD_DIR/xpi/build/staging/ is not a Juris-M client.
