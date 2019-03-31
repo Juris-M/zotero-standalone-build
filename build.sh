@@ -580,6 +580,7 @@ if [ $BUILD_LINUX == 1 ]; then
 		
 		# Modify platform-specific prefs
 		perl -pi -e 's/pref\("browser\.preferences\.instantApply", false\);/pref\("browser\.preferences\.instantApply", true);/' "$BUILD_DIR/zotero/defaults/preferences/prefs.js"
+        perl -pi -e 's/%GECKO_VERSION%/'"$GECKO_VERSION_LINUX"'/g' "$BUILD_DIR/zotero/defaults/preferences/prefs.js"
 		
 		# Add Unix-specific Standalone assets
 		cd "$CALLDIR/assets/unix"
@@ -620,7 +621,7 @@ if [ $BUILD_LINUX == 1 ]; then
 		${GFIND} "$APPDIR" -depth -type d -name .git -exec rm -rf {} \;
 		${GFIND} "$APPDIR" \( -name .DS_Store -or -name update.rdf \) -exec rm -f {} \;
 		${GFIND} "$APPDIR/extensions" -depth -type d -name build -exec rm -rf {} \;
-		${GFIND} "$APPDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
+		#${GFIND} "$APPDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
 		
 		if [ $PACKAGE == 1 ]; then
 			# Create tar
