@@ -87,7 +87,7 @@ pref("toolkit.crashreporter.enabled", false);
 pref("extensions.update.enabled", true);
 pref("extensions.update.url", "https://versioncheck.addons.mozilla.org/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID={ec8030f7-c20a-464f-9b0e-13a3a9e97384}&appVersion=%GECKO_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%&locale=%APP_LOCALE%&currentAppVersion=%GECKO_VERSION%&updateType=%UPDATE_TYPE%");
 pref("extensions.update.interval", 86400);
-pref("extensions.update.autoUpdateDefault", false);
+pref("extensions.update.autoUpdateDefault", true);
 
 // Don't try to load the "Get Add-ons" tab on first load of Add-ons window
 pref("extensions.ui.lastCategory", "addons://list/extension");
