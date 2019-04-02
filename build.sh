@@ -342,6 +342,7 @@ if [ $BUILD_MAC == 1 ]; then
 	${GFIND} "$CONTENTSDIR" -depth -type d -name .git -exec rm -rf {} \;
 	${GFIND} "$CONTENTSDIR" \( -name .DS_Store -or -name update.rdf \) -exec rm -f {} \;
 	${GFIND} "$CONTENTSDIR/Resources/extensions" -depth -type d -name build -exec rm -rf {} \;
+	${GFIND} "$APPDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
 
 	# Copy over removed-files and make a precomplete file since it
 	# needs to be stable for the signature
@@ -460,6 +461,8 @@ if [ $BUILD_WIN32 == 1 ]; then
 	${GFIND} "$APPDIR" \( -name .DS_Store -or -name '.git*' -or -name '.travis.yml' -or -name update.rdf -or -name '*.bak' \) -exec rm -f {} \;
 	${GFIND} "$APPDIR/extensions" -depth -type d -name build -exec rm -rf {} \;
 	${GFIND} "$APPDIR" \( -name '*.exe' -or -name '*.dll' \) -exec chmod 755 {} \;
+	${GFIND} "$APPDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
+
 
 	if [ $PACKAGE == 1 ]; then
 		if [ $WIN_NATIVE == 1 ]; then
@@ -621,7 +624,7 @@ if [ $BUILD_LINUX == 1 ]; then
 		${GFIND} "$APPDIR" -depth -type d -name .git -exec rm -rf {} \;
 		${GFIND} "$APPDIR" \( -name .DS_Store -or -name update.rdf \) -exec rm -f {} \;
 		${GFIND} "$APPDIR/extensions" -depth -type d -name build -exec rm -rf {} \;
-		#${GFIND} "$APPDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
+		${GFIND} "$APPDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
 		
 		if [ $PACKAGE == 1 ]; then
 			# Create tar
