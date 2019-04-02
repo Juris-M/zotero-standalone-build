@@ -342,7 +342,7 @@ if [ $BUILD_MAC == 1 ]; then
 	${GFIND} "$CONTENTSDIR" -depth -type d -name .git -exec rm -rf {} \;
 	${GFIND} "$CONTENTSDIR" \( -name .DS_Store -or -name update.rdf \) -exec rm -f {} \;
 	${GFIND} "$CONTENTSDIR/Resources/extensions" -depth -type d -name build -exec rm -rf {} \;
-	${GFIND} "$CONTENTSDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
+	${GFIND} "$CONTENTSDIR/Resources/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
 
 	# Copy over removed-files and make a precomplete file since it
 	# needs to be stable for the signature
