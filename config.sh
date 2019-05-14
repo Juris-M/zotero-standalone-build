@@ -35,7 +35,7 @@ SIGNTOOL_CERT_SUBJECT="Corporation for Digital Scholarship"
 # Directory for Zotero code repos
 repo_dir=$( cd "$DIR"/.. && pwd )
 # Directory for Zotero source code
-ZOTERO_SOURCE_DIR="$repo_dir"/zotero
+ZOTERO_SOURCE_DIR="$repo_dir"/zotero/build
 # Directory for Zotero build files (needed for scripts/*_build_and_deploy)
 ZOTERO_BUILD_DIR="$repo_dir"/zotero-build
 # Directory for unpacked binaries
