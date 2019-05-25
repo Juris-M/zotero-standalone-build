@@ -8,10 +8,6 @@
 [submodule "modules/bluebook-signals-for-zotero"]
 	path = modules/bluebook-signals-for-zotero
 	url = https://github.com/Juris-M/bluebook-signals-for-zotero.git
-[submodule "modules/myles"]
-	path = modules/myles
-	url = https://github.com/Juris-M/myles.git
-	branch = myles-5.0
 [submodule "modules/zotero-odf-scan-plugin"]
 	path = modules/zotero-odf-scan-plugin
 	url = https://github.com/Juris-M/zotero-odf-scan-plugin.git
