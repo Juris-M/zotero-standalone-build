@@ -329,9 +329,6 @@ if [ $BUILD_MAC == 1 ]; then
     # Add Abbreviation Filter (abbrevs-filter)
 	cp -RH "$CALLDIR/modules/abbrevs-filter" "$CONTENTSDIR/Resources/extensions/abbrevs-filter@juris-m.github.io"
     
-    # Add jurisdiction support (myles)
-	cp -RH "$CALLDIR/modules/myles" "$CONTENTSDIR/Resources/extensions/myles@juris-m.github.io"
-	
     # Add Bluebook signal helper (bluebook-signals-for-zotero)
 	cp -RH "$CALLDIR/modules/bluebook-signals-for-zotero" "$CONTENTSDIR/Resources/extensions/bluebook-signals-for-zotero@mystery-lab.com"
 	
@@ -447,9 +444,6 @@ if [ $BUILD_WIN32 == 1 ]; then
     # Add Abbreviation Filter (abbrevs-filter)
 	cp -RH "$CALLDIR/modules/abbrevs-filter" "$APPDIR/extensions/abbrevs-filter@juris-m.github.io"
 
-    # Add Jurisdiction Support (myles)
-	cp -RH "$CALLDIR/modules/myles" "$APPDIR/extensions/myles@juris-m.github.io"
-	
     # Add Bluebook signal helper (bluebook-signals-for-zotero)
 	cp -RH "$CALLDIR/modules/bluebook-signals-for-zotero" "$APPDIR/extensions/bluebook-signals-for-zotero@mystery-lab.com"
 	
@@ -611,9 +605,6 @@ if [ $BUILD_LINUX == 1 ]; then
         # Add Abbreviation Filter (abbrevs-filter)
 		cp -RH "$CALLDIR/modules/abbrevs-filter" "$APPDIR/extensions/abbrevs-filter@juris-m.github.io"
 
-        # Add Jurisdiction Support (myles)
-		cp -RH "$CALLDIR/modules/myles" "$APPDIR/extensions/myles@juris-m.github.io"
-		
         # Add Bluebook signal helper (bluebook-signals-for-zotero)
 		cp -RH "$CALLDIR/modules/bluebook-signals-for-zotero" "$APPDIR/extensions/bluebook-signals-for-zotero@mystery-lab.com"
 		
