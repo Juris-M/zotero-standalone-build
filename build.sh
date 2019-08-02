@@ -217,8 +217,8 @@ ${GFIND} "$BUILD_DIR/zotero/chrome" -name .DS_Store -exec rm -f {} \;
 
 # Zip chrome into JAR
 cd "$BUILD_DIR/zotero"
-zip -r -q jurism.jar chrome deleted.txt resource styles.zip translators.index translators.zip styles translators.json translators
-rm -rf "chrome/"* install.rdf deleted.txt resource styles.zip translators.index translators.zip styles translators.json translators
+zip -r -q jurism.jar chrome deleted.txt resource styles.zip translators.index translators.zip styles translators.json translators style-modules
+rm -rf "chrome/"* install.rdf deleted.txt resource styles.zip translators.index translators.zip styles translators.json translators style-modules
 
 # Copy updater.ini
 cp "$CALLDIR/assets/updater.ini" "$BUILD_DIR/zotero"
