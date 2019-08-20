@@ -10,7 +10,7 @@ CHANNEL="beta"
 cd "$SCRIPT_DIR"
 ./check_requirements
 
-hash=`./get_repo_branch_hash jurism-5.0`
+hash=`./get_repo_branch_hash jurism-5.0-beta`
 source_dir=`./get_commit_files $hash`
 
 function cleanup {
