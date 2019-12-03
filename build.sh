@@ -183,7 +183,8 @@ fi
 
 cd "$BUILD_DIR/zotero"
 
-VERSION=`perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version>.*/\1/;' install.rdf`
+VERSION=`perl -ne 'print and last if s/.*<em:version>(.+)<\/em:version>.*/\1/;' install.rdf`
+VERSION_NUMERIC=`perl -ne 'print and last if s/.*<em:version>(\d+\.\d+\.\d+).*<\/em:version>.*/\1/;' install.rdf`
 if [ -z "$VERSION" ]; then
 	echo "Version number not found in install.rdf"
 	exit 1
@@ -295,9 +296,21 @@ if [ $BUILD_MAC == 1 ]; then
 	# Modify Info.plist
 	perl -pi -e "s/\{\{VERSION\}\}/$VERSION/" "$CONTENTSDIR/Info.plist"
 	perl -pi -e "s/\{\{VERSION_NUMERIC\}\}/$VERSION_NUMERIC/" "$CONTENTSDIR/Info.plist"
+	if [ $UPDATE_CHANNEL == "beta" ] || [ $UPDATE_CHANNEL == "dev" ] || [ $UPDATE_CHANNEL == "source" ]; then
+		perl -pi -e "s/org\.zotero\.zotero/org.zotero.zotero-$UPDATE_CHANNEL/" "$CONTENTSDIR/Info.plist"
+	fi
+	perl -pi -e "s/\{\{VERSION\}\}/$VERSION/" "$CONTENTSDIR/Info.plist"
 	# Needed for "monkeypatch" Windows builds: 
 	# http://www.nntp.perl.org/group/perl.perl5.porters/2010/08/msg162834.html
 	rm -f "$CONTENTSDIR/Info.plist.bak"
+	
+	echo
+	grep -B 1 org.zotero.zotero "$CONTENTSDIR/Info.plist"
+	echo
+	grep -A 1 CFBundleShortVersionString "$CONTENTSDIR/Info.plist"
+	echo
+	grep -A 1 CFBundleVersion "$CONTENTSDIR/Info.plist"
+	echo
 	
 	# Add components
 	cp -R "$BUILD_DIR/zotero/"* "$CONTENTSDIR/Resources"
@@ -359,6 +372,19 @@ if [ $BUILD_MAC == 1 ]; then
 		fi
 		# Clear extended attributes, which can cause codesign to fail
 		/usr/bin/xattr -cr "$APPDIR"
+
+		# Bundle and sign Safari App Extension
+		#
+		# Even though it's signed by Xcode, we sign it again to make sure it matches the parent app signature
+		if [[ -n "$SAFARI_APPEX" ]] && [[ -d "$SAFARI_APPEX" ]]; then
+			# Extract entitlements, which differ from parent app
+			/usr/bin/codesign -d --entitlements :"$BUILD_DIR/safari-entitlements.plist" $SAFARI_APPEX
+			mkdir "$APPDIR/Contents/PlugIns"
+			cp -R $SAFARI_APPEX "$APPDIR/Contents/PlugIns/ZoteroSafariExtension.appex"
+			/usr/bin/codesign --force --options runtime --entitlements "$BUILD_DIR/safari-entitlements.plist" --sign "$DEVELOPER_ID" "$APPDIR/Contents/PlugIns/ZoteroSafariExtension.appex"
+		fi
+
+		# Sign app
 		entitlements_file="$CALLDIR/mac/entitlements.xml"
 		/usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" \
 			"$APPDIR/Contents/MacOS/pdftotext" \
