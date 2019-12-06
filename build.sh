@@ -706,7 +706,7 @@ if [ $BUILD_LINUX == 1 ]; then
 		echo >> "$APPDIR/defaults/preferences/prefs.js"
 		cat "$CALLDIR/modules/zotero-libreoffice-integration/defaults/preferences/zoteroOpenOfficeIntegration.js" >> "$APPDIR/defaults/preferences/prefs.js"
 		echo >> "$APPDIR/defaults/preferences/prefs.js"
->		
+		
 		# Delete extraneous files
 		${GFIND} "$APPDIR" -depth -type d -name .git -exec rm -rf {} \;
 		${GFIND} "$APPDIR" \( -name .DS_Store -or -name update.rdf \) -exec rm -f {} \;
