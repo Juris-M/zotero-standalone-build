@@ -9,7 +9,7 @@ CHANNEL="beta"
 export SAFARI_APPEX="$ROOT_DIR/../safari-app-extension-builds/beta/ZoteroSafariExtension.appex"
 
 cd "$SCRIPT_DIR"
-./check_requirements
+./check_requirements_packaging
 
 hash=`./get_repo_branch_hash jurism-5.0-beta`
 source_dir=`./get_commit_files $hash`

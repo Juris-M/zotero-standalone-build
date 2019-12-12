@@ -26,7 +26,7 @@ set +e
 FULL_VERSION=`perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version.*/\1/;' "$ZOTERO_BUILD_DIR/xpi/build/staging/install.rdf"`
 
 IS_JURISM=$(echo $FULL_VERSION | grep -c '[0-9]m[0-9]')
-IS_SOURCE=$(echo $FULL_VERSION | grep -c 'SOURCE')
+IS_SOURCE=$(echo $FULL_VERSION | grep -c '\(SOURCE\|-dev.\)')
 IS_BETA=$(echo $FULL_VERSION | grep -c 'm[0-9]\+-beta\.[0-9]')
 IS_RELEASE=$(echo $FULL_VERSION | grep -c '[0-9]m[0-9]\+$')
 set -e

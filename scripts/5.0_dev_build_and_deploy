@@ -6,11 +6,11 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 . "$ROOT_DIR/config.sh"
 
 CHANNEL="dev"
-BRANCH="fx60"
+BRANCH="jurism-5.0"
 # One day "jurism-5.0"?
 
 cd "$SCRIPT_DIR"
-./check_requirements
+./check_requirements_packaging
 
 hash=`./get_repo_branch_hash $BRANCH`
 source_dir=`./get_commit_files $hash`
@@ -21,4 +21,4 @@ function cleanup {
 trap cleanup EXIT
 
 "$ZOTERO_BUILD_DIR/xpi/build_xpi" -s "$source_dir" -c $CHANNEL -m $hash
-./build_and_deploy -d "$ZOTERO_BUILD_DIR/xpi/build/staging" -p $BUILD_PLATFORMS -c $CHANNEL -i $NUM_INCREMENTALS
+./build_and_deploy -d "$ZOTERO_BUILD_DIR/xpi/build/staging" -p $BUILD_PLATFORMS -c $CHANNEL -i 0
