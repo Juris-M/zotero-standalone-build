@@ -30,6 +30,7 @@ IS_SOURCE=$(echo $FULL_VERSION | grep -c '\(SOURCE\|-dev.\)')
 IS_BETA=$(echo $FULL_VERSION | grep -c 'm[0-9]\+-beta\.[0-9]')
 IS_RELEASE=$(echo $FULL_VERSION | grep -c '[0-9]m[0-9]\+$')
 set -e
+
 if [ $IS_JURISM -eq 1 ]; then
     if [ $IS_RELEASE -eq 1 ]; then
         UPDATE_CHANNEL="release"
@@ -303,7 +304,8 @@ if [ $BUILD_MAC == 1 ]; then
 	# Needed for "monkeypatch" Windows builds: 
 	# http://www.nntp.perl.org/group/perl.perl5.porters/2010/08/msg162834.html
 	rm -f "$CONTENTSDIR/Info.plist.bak"
-	
+
+	set +e
 	echo
 	grep -B 1 org.zotero.zotero "$CONTENTSDIR/Info.plist"
 	echo
@@ -311,7 +313,8 @@ if [ $BUILD_MAC == 1 ]; then
 	echo
 	grep -A 1 CFBundleVersion "$CONTENTSDIR/Info.plist"
 	echo
-	
+	set -e
+
 	# Add components
 	cp -R "$BUILD_DIR/zotero/"* "$CONTENTSDIR/Resources"
 	
@@ -343,7 +346,6 @@ if [ $BUILD_MAC == 1 ]; then
 	echo >> "$CONTENTSDIR/Resources/defaults/preferences/prefs.js"
 	cat "$CALLDIR/modules/zotero-libreoffice-integration/defaults/preferences/zoteroOpenOfficeIntegration.js" >> "$CONTENTSDIR/Resources/defaults/preferences/prefs.js"
 	echo
-	
     # Add Abbreviation Filter (abbrevs-filter)
 	cp -RH "$CALLDIR/modules/abbrevs-filter" "$CONTENTSDIR/Resources/extensions/abbrevs-filter@juris-m.github.io"
     
@@ -397,10 +399,12 @@ if [ $BUILD_MAC == 1 ]; then
 		/usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" "$APPDIR"
 		/usr/bin/codesign --verify -vvvv "$APPDIR"
 	fi
-	
+	echo FINISHED BASIC BUNDLING I GUESS
 	# Build and notarize disk image
 	if [ $PACKAGE == 1 ]; then
+		echo PACKAGE TOGGLE OK
 		if [ $MAC_NATIVE == 1 ]; then
+			echo MAC_NATIVE OK
 			echo "Creating Mac installer"
 			dmg="$DIST_DIR/Jurism-$VERSION.dmg"
 			"$CALLDIR/mac/pkg-dmg" --source "$STAGE_DIR/Jurism.app" \
