@@ -568,7 +568,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 				"`cygpath -u \"$SIGNTOOL\"`" sign /n "$SIGNTOOL_CERT_SUBJECT" \
 					/d "Zotero" /du "$SIGNATURE_URL" \
 					/t http://timestamp.verisign.com/scripts/timstamp.dll \
-					"`cygpath -w \"$APPDIR/zotero.exe\"`"
+					"`cygpath -w \"$APPDIR/jurism.exe\"`"
 				for dll in "$APPDIR/"*.dll "$APPDIR/"*.dll; do
 					"`cygpath -u \"$SIGNTOOL\"`" sign /n "$SIGNTOOL_CERT_SUBJECT" /d "Zotero" \
 						/du "$SIGNATURE_URL" "`cygpath -w \"$dll\"`"
