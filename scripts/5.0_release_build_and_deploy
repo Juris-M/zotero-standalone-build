@@ -9,7 +9,7 @@ CHANNEL="release"
 BRANCH="jurism-5.0"
 
 cd "$SCRIPT_DIR"
-./check_requirements
+./check_requirements_packaging
 
 echo "Hello"
 
