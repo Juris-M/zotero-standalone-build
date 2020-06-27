@@ -8,6 +8,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 CHANNEL="dev"
 BRANCH="jurism-5.0"
 # One day "jurism-5.0"?
+export SAFARI_APPEX="$ROOT_DIR/../safari-app-extension-builds/dev/ZoteroSafariExtension.appex"
 
 cd "$SCRIPT_DIR"
 ./check_requirements_packaging
