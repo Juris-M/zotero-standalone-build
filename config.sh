@@ -5,13 +5,16 @@ GECKO_VERSION_MAC="60.9.0esr"
 GECKO_VERSION_LINUX="60.9.0esr"
 GECKO_VERSION_WIN="60.9.0esr"
 
+# URL prefix for custom builds of Firefox components
+custom_components_url="https://download.zotero.org/dev/"
+
 # Paths to Gecko runtimes
 MAC_RUNTIME_PATH="$DIR/xulrunner/Firefox.app"
 WIN32_RUNTIME_PATH="$DIR/xulrunner/firefox-win32"
 LINUX_i686_RUNTIME_PATH="$DIR/xulrunner/firefox-i686"
 LINUX_x86_64_RUNTIME_PATH="$DIR/xulrunner/firefox-x86_64"
 
-PDF_TOOLS_VERSION="0.0.3"
+PDF_TOOLS_VERSION="0.0.4"
 PDF_TOOLS_URL="https://zotero-download.s3.amazonaws.com/pdftools/pdftools-$PDF_TOOLS_VERSION.tar.gz"
 
 # Whether to sign builds
@@ -30,8 +33,7 @@ NOTARIZATION_PASSWORD=""
 NSIS_DIR='C:\Program Files (x86)\NSIS\Unicode\'
 
 # Paths for Windows installer build only necessary for signed binaries
-#SIGNTOOL='C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Bin\signtool.exe'
-SIGNTOOL='C:\Program Files (x86)\Windows Kits\8.0\bin\x86\signtool.exe'
+SIGNTOOL='C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x64\signtool.exe'
 SIGNATURE_URL='https://www.zotero.org/'
 SIGNTOOL_CERT_SUBJECT="Corporation for Digital Scholarship"
 
