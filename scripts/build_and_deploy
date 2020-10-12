@@ -83,6 +83,7 @@ function cleanup {
 trap cleanup EXIT
 
 # Build full update
+
 "$ROOT_DIR/update-packaging/build_autoupdate.sh" -f -c $CHANNEL -p $PLATFORMS -l $VERSION
 
 # Build incremental updates for each platform
@@ -118,10 +119,9 @@ do
 	echo "$INCREMENTALS"
 	echo
 
-    echo AHA $INCREMENTALS
-    
 	for from in $INCREMENTALS; do
 		echo "Building incremental update for $platform_name from $from to $VERSION"
+
 		"$ROOT_DIR/update-packaging/build_autoupdate.sh" -i "$from" -c "$CHANNEL" -p ${PLATFORMS:i:1} -l $VERSION
 		echo
 	done
