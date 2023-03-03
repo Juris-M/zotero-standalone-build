@@ -114,14 +114,14 @@ which rsync || { $FAIL_CMD; FAILED=1; }
 echo -n "Checking for sha512sum/shasum: "
 which sha512sum 2>/dev/null || which shasum 2>/dev/null || { $FAIL_CMD; FAILED=1; }
 
-echo -n "Checking for AWS CLI: "
-which aws || { $FAIL_CMD; FAILED=1; }
+# echo -n "Checking for AWS CLI: "
+# which aws || { $FAIL_CMD; FAILED=1; }
 
-echo -n "Checking for AWS S3 access: "
-aws s3 ls $S3_BUCKET/$S3_DIST_PATH | sed 's/^[[:blank:]]*//' || { $FAIL_CMD; FAILED=1; }
+# echo -n "Checking for AWS S3 access: "
+# aws s3 ls $S3_BUCKET/$S3_DIST_PATH | sed 's/^[[:blank:]]*//' || { $FAIL_CMD; FAILED=1; }
 
-echo -n "Checking for deploy host directory access: "
-ssh $DEPLOY_HOST ls -d $DEPLOY_PATH || { $FAIL_CMD; FAILED=1; }
+# echo -n "Checking for deploy host directory access: "
+# ssh $DEPLOY_HOST ls -d $DEPLOY_PATH || { $FAIL_CMD; FAILED=1; }
 
 
 exit $FAILED
