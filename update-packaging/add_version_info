@@ -12,8 +12,9 @@ import traceback
 DETAILS_URLS = {
     '4.0': 'https://github.com/Juris-M/zotero/commits/jurism-5.0',
     '5.0': 'https://github.com/Juris-M/zotero/commits/jurism-5.0',
+    '6.0': 'https://github.com/Juris-M/zotero/commits/jurism-6.0',
 }
-MAJOR = False
+MAJOR = None
 
 parser = argparse.ArgumentParser(
     description='Update a builds manifest with info on a given build',

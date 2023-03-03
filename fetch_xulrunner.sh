@@ -70,7 +70,7 @@ function modify_omni {
 	cd omni
 	# omni.ja is an "optimized" ZIP file, so use a script from Mozilla to avoid a warning from unzip
 	# here and to make it work after rezipping below
-	python2.7 "$CALLDIR/scripts/optimizejars.py" --deoptimize ./ ./ ./
+	python3 "$CALLDIR/scripts/optimizejars.py" --deoptimize ./ ./ ./
 	unzip omni.ja
 	rm omni.ja
 	
@@ -89,6 +89,14 @@ function modify_omni {
 		# Delete binary version of file
 		rm -f jsloader/resource/gre/modules/AppConstants.jsm
 	fi
+	
+	perl -pi -e 's/if \(!Services.prefs.getBoolPref\(PREF_APP_UPDATE_AUTO, true\)\) \{/if (update.type == "major") {
+	    LOG("UpdateService:_selectAndInstallUpdate - prompting because it is a major update");
+	    Services.obs.notifyObservers(update, "update-available", "show-prompt");
+	    this._showPrompt(update);
+	    return;
+	}
+	if \(!Services.prefs.getBoolPref\(PREF_APP_UPDATE_AUTO, true\)\) \{/' components/nsUpdateService.js
 	
 	# Update URL for built-in add-ons list
 	echo '{"system": []}' > modules/addons/built_in_addons.json
@@ -138,7 +146,7 @@ function modify_omni {
 	zip -qr9XD omni.ja *
 	mv omni.ja ..
 	cd ..
-	python2.7 "$CALLDIR/scripts/optimizejars.py" --optimize ./ ./ ./
+	python3 "$CALLDIR/scripts/optimizejars.py" --optimize ./ ./ ./
 	rm -rf omni
 }
 

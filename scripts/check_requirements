@@ -26,9 +26,6 @@ echo
 echo -n "Checking for perl: "
 which perl || { $FAIL_CMD; FAILED=1; }
 
-echo -n "Checking for python2.7: "
-which python2.7 || { $FAIL_CMD; FAILED=1; }
-
 echo -n "Checking for python3: "
 which python3 || { $FAIL_CMD; FAILED=1; }
 
@@ -50,6 +47,9 @@ which awk || { $FAIL_CMD; FAILED=1; }
 if [ $WIN_NATIVE == 1 ]; then
 	echo -n "Checking for 7z: "
 	which 7z || { $FAIL_CMD; FAILED=1; }
+	
+	echo -n "Checking for rcedit: "
+	which rcedit || { $FAIL_CMD; FAILED=1; echo " -- Install with scripts/fetch_rcedit"; }
 fi
 
 echo

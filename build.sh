@@ -159,6 +159,11 @@ if [[ $BUILD_MAC == 0 ]] && [[ $BUILD_WIN32 == 0 ]] && [[ $BUILD_LINUX == 0 ]]; 
 	usage
 fi
 
+# Bundle devtools with dev builds
+if [ $UPDATE_CHANNEL == "beta" ] || [ $UPDATE_CHANNEL == "dev" ]; then
+	DEVTOOLS=1
+fi
+
 BUILD_ID=`date +%Y%m%d%H%M%S`
 
 shopt -s extglob
@@ -184,8 +189,10 @@ fi
 
 cd "$BUILD_DIR/zotero"
 
+# 5.0.96.3 / 5.0.97-beta.37+ddc7be75c
 VERSION=`perl -ne 'print and last if s/.*<em:version>(.+)<\/em:version>.*/\1/;' install.rdf`
-VERSION_NUMERIC=`perl -ne 'print and last if s/.*<em:version>(\d+\.\d+\.\d+).*<\/em:version>.*/\1/;' install.rdf`
+# 5.0.96 / 5.0.97
+VERSION_NUMERIC=`perl -ne 'print and last if s/.*<em:version>(\d+\.\d+(\.\d+)?).*<\/em:version>.*/\1/;' install.rdf`
 if [ -z "$VERSION" ]; then
 	echo "Version number not found in install.rdf"
 	exit 1
@@ -244,9 +251,13 @@ perl -pi -e "s/\{\{BUILDID}}/$BUILD_ID/" "$BUILD_DIR/application.ini"
 cp "$CALLDIR/assets/prefs.js" "$BUILD_DIR/zotero/defaults/preferences"
 perl -pi -e 's/pref\("app\.update\.channel", "[^"]*"\);/pref\("app\.update\.channel", "'"$UPDATE_CHANNEL"'");/' "$BUILD_DIR/zotero/defaults/preferences/prefs.js"
 
-# Add devtools manifest and pref
+# Add devtools manifest and prefs
 if [ $DEVTOOLS -eq 1 ]; then
+	# Adjust paths for .jar
 	cat "$CALLDIR/assets/devtools.manifest" >> "$BUILD_DIR/zotero/chrome.manifest"
+	perl -pi -e 's/chrome\/locale\/en-US\/devtools\//jar:devtools.jar!\/locale\/en-US\/devtools\//' "$BUILD_DIR/zotero/chrome.manifest"
+	perl -pi -e 's/chrome\/devtools\//jar:devtools.jar!\//' "$BUILD_DIR/zotero/chrome.manifest"
+	
 	echo 'pref("devtools.debugger.remote-enabled", true);' >> "$BUILD_DIR/zotero/defaults/preferences/prefs.js"
 	echo 'pref("devtools.debugger.remote-port", 6100);' >> "$BUILD_DIR/zotero/defaults/preferences/prefs.js"
 	echo 'pref("devtools.debugger.prompt-connection", false);' >> "$BUILD_DIR/zotero/defaults/preferences/prefs.js"
@@ -291,7 +302,7 @@ if [ $BUILD_MAC == 1 ]; then
 	cp "$BUILD_DIR/application.ini" "$CONTENTSDIR/Resources"
 
 	# TEMP: Modified versions of some Firefox components for Big Sur, placed in xulrunner/MacOS
-	cp "$MAC_RUNTIME_PATH/../MacOS/"{libnss3.dylib,XUL} "$CONTENTSDIR/MacOS/"
+	cp "$MAC_RUNTIME_PATH/../MacOS/"{libc++.1.dylib,libnss3.dylib,XUL} "$CONTENTSDIR/MacOS/"
 
 	# Use our own updater, because Mozilla's requires updates signed by Mozilla
 	cd "$CONTENTSDIR/MacOS"
@@ -305,8 +316,11 @@ if [ $BUILD_MAC == 1 ]; then
 	# Modify Info.plist
 	perl -pi -e "s/\{\{VERSION\}\}/$VERSION/" "$CONTENTSDIR/Info.plist"
 	perl -pi -e "s/\{\{VERSION_NUMERIC\}\}/$VERSION_NUMERIC/" "$CONTENTSDIR/Info.plist"
-	if [ $UPDATE_CHANNEL == "beta" ] || [ $UPDATE_CHANNEL == "dev" ] || [ $UPDATE_CHANNEL == "source" ]; then
+	if [ $UPDATE_CHANNEL == "beta" ] || [ $UPDATE_CHANNEL == "dev" ]; then
 		perl -pi -e "s/org\.zotero\.zotero/org.zotero.zotero-$UPDATE_CHANNEL/" "$CONTENTSDIR/Info.plist"
+	# TEMP: Necessary on Ventura until Zotero 7
+	elif [ $UPDATE_CHANNEL == "source" ]; then
+		perl -pi -e "s/org\.zotero\.zotero/org.zotero.zotero-dev/" "$CONTENTSDIR/Info.plist"
 	fi
 	perl -pi -e "s/\{\{VERSION\}\}/$VERSION/" "$CONTENTSDIR/Info.plist"
 	# Needed for "monkeypatch" Windows builds: 
@@ -332,7 +346,17 @@ if [ $BUILD_MAC == 1 ]; then
 	
 	# Add devtools
 	if [ $DEVTOOLS -eq 1 ]; then
-		cp -r "$MAC_RUNTIME_PATH"/Contents/Resources/devtools-files/chrome/* "$CONTENTSDIR/Resources/chrome/"
+		# Create devtools.jar
+		cd "$BUILD_DIR"
+		mkdir -p devtools/locale
+		cp -r "$MAC_RUNTIME_PATH"/Contents/Resources/devtools-files/chrome/devtools/* devtools/
+		cp -r "$MAC_RUNTIME_PATH"/Contents/Resources/devtools-files/chrome/locale/* devtools/locale/
+		cd devtools
+		zip -r -q ../devtools.jar *
+		cd ..
+		rm -rf devtools
+		mv devtools.jar "$CONTENTSDIR/Resources/"
+		
 		cp "$MAC_RUNTIME_PATH/Contents/Resources/devtools-files/components/interfaces.xpt" "$CONTENTSDIR/Resources/components/"
 	fi
 	
@@ -346,11 +370,8 @@ if [ $BUILD_MAC == 1 ]; then
 		perl -pi -e 's/\.SOURCE<\/em:version>/.SA.'"$VERSION"'<\/em:version>/' "$CONTENTSDIR/Resources/extensions/$ext/install.rdf"
 		echo -n "$ext Version: "
 		perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version>.*/\1/;' "$CONTENTSDIR/Resources/extensions/$ext/install.rdf"
-		rm -rf "$CONTENTSDIR/Resources/extensions/$ext/.git"
+		rm -rf "$CONTENTSDIR/Resources/extensions/$ext/.git" "$CONTENTSDIR/Resources/extensions/$ext/.github"
 	done
-	# Add Mac Word plugin's XPC Service
-	mkdir -p "$CONTENTSDIR/XPCServices"
-	mv "$CONTENTSDIR/Resources/extensions/zoteroMacWordIntegration@zotero.org/resource/ZoteroWordIntegrationService.xpc" "$CONTENTSDIR/XPCServices"
 	# Default preferenes are no longer read from built-in extensions in Firefox 60
 	echo >> "$CONTENTSDIR/Resources/defaults/preferences/prefs.js"
 	cat "$CALLDIR/modules/zotero-word-for-mac-integration/defaults/preferences/zoteroMacWordIntegration.js" >> "$CONTENTSDIR/Resources/defaults/preferences/prefs.js"
@@ -392,9 +413,7 @@ if [ $BUILD_MAC == 1 ]; then
 			"$APPDIR/Contents/MacOS/pdftotext" \
 			"$APPDIR/Contents/MacOS/pdfinfo" \
 			"$APPDIR/Contents/MacOS/XUL" \
-			"$APPDIR/Contents/MacOS/updater.app/Contents/MacOS/org.mozilla.updater" \
-			"$APPDIR/Contents/XPCServices/ZoteroWordIntegrationService.xpc/Contents/MacOS/ZoteroWordIntegrationService" \
-			"$APPDIR/Contents/XPCServices/ZoteroWordIntegrationService.xpc"
+			"$APPDIR/Contents/MacOS/updater.app/Contents/MacOS/org.mozilla.updater"
 		find "$APPDIR/Contents" -name '*.dylib' -exec /usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" {} \;
 		find "$APPDIR/Contents" -name '*.app' -exec /usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" {} \;
 		/usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" "$APPDIR/Contents/MacOS/zotero"
@@ -516,7 +535,17 @@ if [ $BUILD_WIN32 == 1 ]; then
 	# is modified with Visual Studio resource editor where icon and file details are changed.
 	# Then firefox.exe is rebuilt again
 	cp "$CALLDIR/win/zotero_win32.exe" "$APPDIR/jurism.exe"
-
+	
+	# Update .exe version number (only possible on Windows)
+	if [ $WIN_NATIVE == 1 ]; then
+		# FileVersion is limited to four integers, so it won't be properly updated for non-release
+		# builds (e.g., we'll show 5.0.97.0 for 5.0.97-beta.37). ProductVersion will be the full
+		# version string.
+		rcedit "`cygpath -w \"$APPDIR/zotero.exe\"`" \
+			--set-file-version "$VERSION_NUMERIC" \
+			--set-product-version "$VERSION"
+	fi
+	
 	# Use our own updater, because Mozilla's requires updates signed by Mozilla
 	cp "$CALLDIR/win/updater.exe" "$APPDIR"
 	cat "$CALLDIR/win/installer/updater_append.ini" >> "$APPDIR/updater.ini"
@@ -534,7 +563,17 @@ if [ $BUILD_WIN32 == 1 ]; then
 	
 	# Add devtools
 	if [ $DEVTOOLS -eq 1 ]; then
-		cp -r "$WIN32_RUNTIME_PATH"/devtools-files/chrome/* "$APPDIR/chrome/"
+		# Create devtools.jar
+		cd "$BUILD_DIR"
+		mkdir -p devtools/locale
+		cp -r "$WIN32_RUNTIME_PATH"/devtools-files/chrome/devtools/* devtools/
+		cp -r "$WIN32_RUNTIME_PATH"/devtools-files/chrome/locale/* devtools/locale/
+		cd devtools
+		zip -r -q ../devtools.jar *
+		cd ..
+		rm -rf devtools
+		mv devtools.jar "$APPDIR"
+		
 		cp "$WIN32_RUNTIME_PATH/devtools-files/components/interfaces.xpt" "$APPDIR/components/"
 	fi
 	
@@ -544,16 +583,13 @@ if [ $BUILD_WIN32 == 1 ]; then
         cp -RH "$CALLDIR/modules/zotero-libreoffice-integration" "$APPDIR/extensions/zoteroOpenOfficeIntegration@zotero.org"
         echo
         for ext in "zoteroWinWordIntegration@zotero.org" "zoteroOpenOfficeIntegration@zotero.org"; do
-                perl -pi -e 's|^(</Description>)|        <em:targetApplication>\n                <Description>\n                        <em:id>juris-m\@juris-m.github.io</em:id>\n                        <em:minVersion>4.0</em:minVersion>\n                        <em:maxVersion>5.0.*</em:maxVersion>\n                </Description>\n        </em:targetApplication>\n${1}|' "$APPDIR/extensions/$ext/install.rdf"
+                perl -pi -e 's|^(</Description>)|        <em:targetApplication>\n                <Description>\n                        <em:id>juris-m\@juris-m.github.io</em:id>\n                        <em:minVersion>4.0</em:minVersion>\n                        <em:maxVersion>6.0.*</em:maxVersion>\n                </Description>\n        </em:targetApplication>\n${1}|' "$APPDIR/extensions/$ext/install.rdf"
                 perl -pi -e 's/\.SOURCE<\/em:version>/.SA.'"$VERSION"'<\/em:version>/' "$APPDIR/extensions/$ext/install.rdf"
                 echo -n "$ext Version: "
                 perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version>.*/\1/;' "$APPDIR/extensions/$ext/install.rdf"
                 rm -rf "$APPDIR/extensions/$ext/.git"
         done
         echo
-
-
-
     # Add Abbreviation Filter (abbrevs-filter)
 	cp -RH "$CALLDIR/modules/abbrevs-filter" "$APPDIR/extensions/abbrevs-filter@juris-m.github.io"
 
@@ -608,6 +644,8 @@ if [ $BUILD_WIN32 == 1 ]; then
 					/tr "$SIGNTOOL_TIMESTAMP_SERVER" \
 					/td SHA256 \
 					"`cygpath -w \"$APPDIR/jurism.exe\"`"
+				sleep $SIGNTOOL_DELAY
+
 				#
 				# Windows doesn't check DLL signatures
 				#
@@ -627,6 +665,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 					/tr "$SIGNTOOL_TIMESTAMP_SERVER" \
 					/td SHA256 \
 					"`cygpath -w \"$APPDIR/updater.exe\"`"
+				sleep $SIGNTOOL_DELAY
 				"`cygpath -u \"$SIGNTOOL\"`" \
 					sign /n "$SIGNTOOL_CERT_SUBJECT" \
 					/d "$SIGNATURE_DESC Uninstaller" \
@@ -634,6 +673,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 					/tr "$SIGNTOOL_TIMESTAMP_SERVER" \
 					/td SHA256 \
 					"`cygpath -w \"$APPDIR/uninstall/helper.exe\"`"
+				sleep $SIGNTOOL_DELAY
 				"`cygpath -u \"$SIGNTOOL\"`" \
 					sign /n "$SIGNTOOL_CERT_SUBJECT" \
 					/d "$SIGNATURE_DESC PDF Converter" \
@@ -641,6 +681,7 @@ if [ $BUILD_WIN32 == 1 ]; then
                                         /tr "$SIGNTOOL_TIMESTAMP_SERVER" \
                                         /td SHA256 \
 					"`cygpath -w \"$APPDIR/pdftotext.exe\"`"
+				sleep $SIGNTOOL_DELAY
 				"`cygpath -u \"$SIGNTOOL\"`" \
 					sign /n "$SIGNTOOL_CERT_SUBJECT" \
 					/d "$SIGNATURE_DESC PDF Info" \
@@ -648,6 +689,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 					/tr "$SIGNTOOL_TIMESTAMP_SERVER" \
 					/td SHA256 \
 					"`cygpath -w \"$APPDIR/pdfinfo.exe\"`"
+				sleep $SIGNTOOL_DELAY
 			fi
 			
 			# Stage installer
@@ -667,6 +709,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 					/tr "$SIGNTOOL_TIMESTAMP_SERVER" \
 					/td SHA256 \
 					"`cygpath -w \"$INSTALLER_STAGE_DIR/setup.exe\"`"
+				sleep $SIGNTOOL_DELAY
 			fi
 			
 			# Compress application
@@ -743,7 +786,17 @@ if [ $BUILD_LINUX == 1 ]; then
 		
 		# Add devtools
 		if [ $DEVTOOLS -eq 1 ]; then
-			cp -r "$RUNTIME_PATH"/devtools-files/chrome/* "$APPDIR/chrome/"
+			# Create devtools.jar
+			cd "$BUILD_DIR"
+			mkdir -p devtools/locale
+			cp -r "$RUNTIME_PATH"/devtools-files/chrome/devtools/* devtools/
+			cp -r "$RUNTIME_PATH"/devtools-files/chrome/locale/* devtools/locale/
+			cd devtools
+			zip -r -q ../devtools.jar *
+			cd ..
+			rm -rf devtools
+			mv devtools.jar "$APPDIR"
+			
 			cp "$RUNTIME_PATH/devtools-files/components/interfaces.xpt" "$APPDIR/components/"
 		fi
         
@@ -758,6 +811,7 @@ if [ $BUILD_LINUX == 1 ]; then
 		perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version>.*/\1/;' "$APPDIR/extensions/zoteroOpenOfficeIntegration@zotero.org/install.rdf"
 		echo
 		rm -rf "$APPDIR/extensions/zoteroOpenOfficeIntegration@zotero.org/.git"
+		rm -rf "$APPDIR/extensions/zoteroOpenOfficeIntegration@zotero.org/.git" "$APPDIR/extensions/zoteroOpenOfficeIntegration@zotero.org/.github"
         
         # Add Abbreviation Filter (abbrevs-filter)
 		cp -RH "$CALLDIR/modules/abbrevs-filter" "$APPDIR/extensions/abbrevs-filter@juris-m.github.io"
