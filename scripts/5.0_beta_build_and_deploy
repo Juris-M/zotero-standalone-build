@@ -15,7 +15,6 @@ cd "$SCRIPT_DIR"
 hash=`./get_repo_branch_hash jurism-6.0.20`
 source_dir=`./get_commit_files $hash`
 
-echo [1] 5.0_beta_build_and_deploy
 
 function cleanup {
 	rm -rf $source_dir
