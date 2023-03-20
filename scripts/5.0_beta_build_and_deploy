@@ -1,8 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-cp install-MacWord.rdf modules/zotero-word-for-mac-integration/install.rdf
+echo Overwriting upstream install.rdf for Mac, Windows, and LibreOffice plugins
+cp install-Mac.rdf modules/zotero-word-for-mac-integration/install.rdf
 cp install-LO.rdf modules/zotero-libreoffice-integration/install.rdf
+cp install-Windows.rdf modules/zotero-word-for-windows-integration/install.rdf
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -26,3 +28,14 @@ trap cleanup EXIT
 
 "$ZOTERO_BUILD_DIR/xpi/build_xpi" -s "$source_dir" -c $CHANNEL -m $hash
 ./build_and_deploy -d "$ZOTERO_BUILD_DIR/xpi/build/staging" -p $BUILD_PLATFORMS -c $CHANNEL
+
+echo Restoring upstream install.rdf for Mac, Windows, and LibreOffice plugins
+cd modules/zotero-word-for-mac-integration
+git checkout install.rdf
+cd ../..
+cd modules/zotero-word-for-windows-integration
+git checkout install.rdf
+cd ../..
+cd modules/zotero-libreoffice-integration
+git checkout install.rdf
+cd ../..
