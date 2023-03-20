@@ -30,12 +30,10 @@ trap cleanup EXIT
 ./build_and_deploy -d "$ZOTERO_BUILD_DIR/xpi/build/staging" -p $BUILD_PLATFORMS -c $CHANNEL
 
 echo Restoring upstream install.rdf for Mac, Windows, and LibreOffice plugins
-cd modules/zotero-word-for-mac-integration
+cd "$ROOT_DIR/modules/zotero-word-for-mac-integration"
 git checkout install.rdf
-cd ../..
-cd modules/zotero-word-for-windows-integration
+cd "$ROOT_DIR/modules/zotero-word-for-windows-integration"
 git checkout install.rdf
-cd ../..
-cd modules/zotero-libreoffice-integration
+cd "$ROOT_DIR/modules/zotero-libreoffice-integration"
 git checkout install.rdf
-cd ../..
+cd "$ROOT_DIR"
