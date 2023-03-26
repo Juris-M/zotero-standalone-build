@@ -541,7 +541,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 		# FileVersion is limited to four integers, so it won't be properly updated for non-release
 		# builds (e.g., we'll show 5.0.97.0 for 5.0.97-beta.37). ProductVersion will be the full
 		# version string.
-		rcedit "`cygpath -w \"$APPDIR/zotero.exe\"`" \
+		rcedit "`cygpath -w \"$APPDIR/jurism.exe\"`" \
 			--set-file-version "$VERSION_NUMERIC" \
 			--set-product-version "$VERSION"
 	fi
