@@ -15,11 +15,10 @@ export SAFARI_APPEX="$ROOT_DIR/../safari-app-extension-builds/beta/ZoteroSafariE
 
 cd "$SCRIPT_DIR"
 
-./check_requirements_packaging
+./check_requirements_packaging continue
 
 hash=`./get_repo_branch_hash jurism-6.0.20`
 source_dir=`./get_commit_files $hash`
-
 
 function cleanup {
 	rm -rf $source_dir
