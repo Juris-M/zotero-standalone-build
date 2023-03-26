@@ -34,9 +34,9 @@ NSIS_DIR='C:\Program Files (x86)\NSIS\Unicode\'
 
 # Paths for Windows installer build only necessary for signed binaries
 SIGNTOOL='C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\signtool.exe'
-SIGNATURE_DESC='Zotero'
-SIGNATURE_URL='https://www.zotero.org/'
-SIGNTOOL_CERT_SUBJECT="Corporation for Digital Scholarship"
+SIGNATURE_DESC='Jurism'
+SIGNATURE_URL='https://juris-m.github.com'
+SIGNTOOL_CERT_SUBJECT="Frank Bennett"
 SIGNTOOL_TIMESTAMP_SERVER="http://timestamp.sectigo.com"
 SIGNTOOL_DELAY=15
 
