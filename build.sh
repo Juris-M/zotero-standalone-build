@@ -21,6 +21,11 @@
 CALLDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$CALLDIR/config.sh"
 
+echo Overwriting upstream install.rdf for Mac, Windows, and LibreOffice plugins
+cp install-Mac.rdf modules/zotero-word-for-mac-integration/install.rdf
+cp install-LO.rdf modules/zotero-libreoffice-integration/install.rdf
+cp install-Windows.rdf modules/zotero-word-for-windows-integration/install.rdf
+
 ## Sniff the channel from the code to be built
 set +e
 FULL_VERSION=`perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version.*/\1/;' "$ZOTERO_BUILD_DIR/xpi/build/staging/install.rdf"`
@@ -843,3 +848,13 @@ if [ $BUILD_LINUX == 1 ]; then
 fi
 
 rm -rf $BUILD_DIR
+
+echo Restoring upstream install.rdf for Mac, Windows, and LibreOffice plugins
+cd "$CALLDIR/modules/zotero-word-for-mac-integration"
+git checkout install.rdf
+cd "$CALLDIR/modules/zotero-word-for-windows-integration"
+git checkout install.rdf
+cd "$CALLDIR/modules/zotero-libreoffice-integration"
+git checkout install.rdf
+cd "$CALLDIR"
+
