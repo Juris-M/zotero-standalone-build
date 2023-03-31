@@ -26,6 +26,32 @@ cp "$CALLDIR/install-Mac.rdf" "$CALLDIR/modules/zotero-word-for-mac-integration/
 cp "$CALLDIR/install-LO.rdf" "$CALLDIR/modules/zotero-libreoffice-integration/install.rdf"
 cp "$CALLDIR/install-Windows.rdf" "$CALLDIR/modules/zotero-word-for-windows-integration/install.rdf"
 
+function jurism_support_in_word_for_windows () {
+    echo Editing Word for Windows plugin to add Jurism support
+    WWFPATH="$CALLDIR/modules/zotero-word-for-windows-integration/build/template/Zotero.dotm/word/vbaProject.bin/Zotero.bas"
+    if [ -f "$WWFPATH" ]; then
+        set +e
+        HAS_BROWSER_KEYWORD=$(grep -c Browser "$WWFPATH");
+        set -e
+        if [ $HAS_BROWSER_KEYWORD -gt 1 ]; then
+            echo Multiple \"Browser\" keywords found in Zotero Word for Windows Integration plugin file to be edited.
+            echo Aborting.
+            exit 1
+        fi
+        if [ $HAS_BROWSER_KEYWORD -eq 0 ]; then
+            echo Zotero Word for Windows Integration plugin does not contain keyword \"Browser\".
+            echo Aborting.
+            exit 1
+        else
+            sed -i "s/Browser/Jurism/" "$WWFPATH"
+        fi
+    else
+        echo Zotero Word for Windows Integration plugin file not found!
+        echo Aborting.
+        exit 1
+    fi
+}
+
 ## Sniff the channel from the code to be built
 set +e
 FULL_VERSION=`perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version.*/\1/;' "$ZOTERO_BUILD_DIR/xpi/build/staging/install.rdf"`
@@ -87,10 +113,12 @@ Options
  -t                  add devtools
  -p PLATFORMS        build for platforms PLATFORMS (m=Mac, w=Windows, l=Linux)
  -e                  enforce signing
- -s                  don't package; only build binaries in staging/ directory
+ -s                  do not package; only build binaries in staging/ directory
 DONE
 	exit 1
 }
+
+jurism_support_in_word_for_windows
 
 BUILD_DIR=`mktemp -d`
 function cleanup {
@@ -848,6 +876,11 @@ if [ $BUILD_LINUX == 1 ]; then
 fi
 
 rm -rf $BUILD_DIR
+
+echo Restoring Zotero Word for Windows integration plugin
+cd "$CALLDIR/modules/zotero-word-for-windows-integration"
+git checkout build
+cd "$CALLDIR"
 
 echo Restoring upstream install.rdf for Mac, Windows, and LibreOffice plugins
 cd "$CALLDIR/modules/zotero-word-for-mac-integration"
