@@ -22,9 +22,9 @@ CALLDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$CALLDIR/config.sh"
 
 echo Overwriting upstream install.rdf for Mac, Windows, and LibreOffice plugins
-cp install-Mac.rdf modules/zotero-word-for-mac-integration/install.rdf
-cp install-LO.rdf modules/zotero-libreoffice-integration/install.rdf
-cp install-Windows.rdf modules/zotero-word-for-windows-integration/install.rdf
+cp "$CALLDIR/install-Mac.rdf" "$CALLDIR/modules/zotero-word-for-mac-integration/install.rdf"
+cp "$CALLDIR/install-LO.rdf" "$CALLDIR/modules/zotero-libreoffice-integration/install.rdf"
+cp "$CALLDIR/install-Windows.rdf" "$CALLDIR/modules/zotero-word-for-windows-integration/install.rdf"
 
 ## Sniff the channel from the code to be built
 set +e
