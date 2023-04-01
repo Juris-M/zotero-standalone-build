@@ -1,4 +1,4 @@
 ;!@Install@!UTF-8!
-Title="Juris-M Standalone"
+Title="Jurism"
 RunProgram="setup.exe"
 ;!@InstallEnd@!
