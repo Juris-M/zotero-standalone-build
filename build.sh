@@ -28,28 +28,7 @@ cp "$CALLDIR/install-Windows.rdf" "$CALLDIR/modules/zotero-word-for-windows-inte
 
 function jurism_support_in_word_for_windows () {
     echo Editing Word for Windows plugin to add Jurism support
-    WWFPATH="$CALLDIR/modules/zotero-word-for-windows-integration/build/template/Zotero.dotm/word/vbaProject.bin/Zotero.bas"
-    if [ -f "$WWFPATH" ]; then
-        set +e
-        HAS_BROWSER_KEYWORD=$(grep -c Browser "$WWFPATH");
-        set -e
-        if [ $HAS_BROWSER_KEYWORD -gt 1 ]; then
-            echo Multiple \"Browser\" keywords found in Zotero Word for Windows Integration plugin file to be edited.
-            echo Aborting.
-            exit 1
-        fi
-        if [ $HAS_BROWSER_KEYWORD -eq 0 ]; then
-            echo Zotero Word for Windows Integration plugin does not contain keyword \"Browser\".
-            echo Aborting.
-            exit 1
-        else
-            sed -i "s/Browser/Jurism/" "$WWFPATH"
-        fi
-    else
-        echo Zotero Word for Windows Integration plugin file not found!
-        echo Aborting.
-        exit 1
-    fi
+    unzip Zotero-dotm-mod.zip
 }
 
 ## Sniff the channel from the code to be built
@@ -880,6 +859,7 @@ rm -rf $BUILD_DIR
 echo Restoring Zotero Word for Windows integration plugin
 cd "$CALLDIR/modules/zotero-word-for-windows-integration"
 git checkout build
+git checkout install
 cd "$CALLDIR"
 
 echo Restoring upstream install.rdf for Mac, Windows, and LibreOffice plugins
