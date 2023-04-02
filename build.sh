@@ -28,7 +28,7 @@ cp "$CALLDIR/install-Windows.rdf" "$CALLDIR/modules/zotero-word-for-windows-inte
 
 function jurism_support_in_word_for_windows () {
     echo Editing Word for Windows plugin to add Jurism support
-    unzip Zotero-dotm-mod.zip
+    unzip -o Zotero-dotm-mod.zip
 }
 
 ## Sniff the channel from the code to be built
