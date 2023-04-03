@@ -634,7 +634,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 
 	if [ $PACKAGE == 1 ]; then
 		if [ $WIN_NATIVE == 1 ]; then
-			INSTALLER_PATH="$DIST_DIR/Jurism-${VERSION}_setup.exe"
+			INSTALLER_PATH="$DIST_DIR/Jurism-${VERSION}_setup32.exe"
 			
 			echo 'Creating Windows installer'
 			# Copy installer files
@@ -709,9 +709,9 @@ if [ $BUILD_WIN32 == 1 ]; then
 			mkdir "$INSTALLER_STAGE_DIR"
 			cp -R "$APPDIR" "$INSTALLER_STAGE_DIR/core"
 			
-			# Build and sign setup.exe
+			# Build and sign setup32.exe
 			"`cygpath -u \"${NSIS_DIR}makensis.exe\"`" /V1 "`cygpath -w \"$BUILD_DIR/win_installer/installer.nsi\"`"
-			mv "$BUILD_DIR/win_installer/setup.exe" "$INSTALLER_STAGE_DIR"
+			mv "$BUILD_DIR/win_installer/setup32.exe" "$INSTALLER_STAGE_DIR"
 			if [ $SIGN == 1 ]; then
 				"`cygpath -u \"$SIGNTOOL\"`" \
 					sign /n "$SIGNTOOL_CERT_SUBJECT" \
@@ -720,7 +720,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 					/fd SHA256 \
 					/tr "$SIGNTOOL_TIMESTAMP_SERVER" \
 					/td SHA256 \
-					"`cygpath -w \"$INSTALLER_STAGE_DIR/setup.exe\"`"
+					"`cygpath -w \"$INSTALLER_STAGE_DIR/setup32.exe\"`"
 				sleep $SIGNTOOL_DELAY
 			fi
 			
@@ -732,11 +732,11 @@ if [ $BUILD_WIN32 == 1 ]; then
 			upx --best -o "`cygpath -w \"$BUILD_DIR/7zSD.sfx\"`" \
 				"`cygpath -w \"$CALLDIR/win/installer/7zstub/firefox/7zSD.sfx\"`" > /dev/null
 			
-			# Combine 7zSD.sfx and app.tag into setup.exe
+			# Combine 7zSD.sfx and app.tag into setup32.exe
 			cat "$BUILD_DIR/7zSD.sfx" "$CALLDIR/win/installer/app.tag" \
 				"$BUILD_DIR/app_win32.7z" > "$INSTALLER_PATH"
 			
-			# Sign Zotero_setup.exe
+			# Sign Zotero_setup32.exe
 			if [ $SIGN == 1 ]; then
 				"`cygpath -u \"$SIGNTOOL\"`" \
 					sign /n "$SIGNTOOL_CERT_SUBJECT" \
