@@ -329,10 +329,10 @@ if [ $BUILD_MAC == 1 ]; then
 	perl -pi -e "s/\{\{VERSION\}\}/$VERSION/" "$CONTENTSDIR/Info.plist"
 	perl -pi -e "s/\{\{VERSION_NUMERIC\}\}/$VERSION_NUMERIC/" "$CONTENTSDIR/Info.plist"
 	if [ $UPDATE_CHANNEL == "beta" ] || [ $UPDATE_CHANNEL == "dev" ]; then
-		perl -pi -e "s/org\.zotero\.zotero/org.zotero.zotero-$UPDATE_CHANNEL/" "$CONTENTSDIR/Info.plist"
+		perl -pi -e "s/xyz\.jurism\.jurism/xyz.jurism.jurism-$UPDATE_CHANNEL/" "$CONTENTSDIR/Info.plist"
 	# TEMP: Necessary on Ventura until Zotero 7
 	elif [ $UPDATE_CHANNEL == "source" ]; then
-		perl -pi -e "s/org\.zotero\.zotero/org.zotero.zotero-dev/" "$CONTENTSDIR/Info.plist"
+		perl -pi -e "s/xyz\.jurism\.jurism/xyz.jurism.jurism-dev/" "$CONTENTSDIR/Info.plist"
 	fi
 	perl -pi -e "s/\{\{VERSION\}\}/$VERSION/" "$CONTENTSDIR/Info.plist"
 	# Needed for "monkeypatch" Windows builds: 
@@ -412,6 +412,7 @@ if [ $BUILD_MAC == 1 ]; then
 	
 	# Sign
 	if [ $SIGN == 1 ]; then
+		echo Signing elements of Mac build
 		# Unlock keychain if a password is provided (necessary for building from a shell)
 		if [ -n "$KEYCHAIN_PASSWORD" ]; then
 			security -v unlock-keychain -p "$KEYCHAIN_PASSWORD" ~/Library/Keychains/$KEYCHAIN.keychain-db
@@ -428,7 +429,12 @@ if [ $BUILD_MAC == 1 ]; then
 			"$APPDIR/Contents/MacOS/updater.app/Contents/MacOS/org.mozilla.updater"
 		find "$APPDIR/Contents" -name '*.dylib' -exec /usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" {} \;
 		find "$APPDIR/Contents" -name '*.app' -exec /usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" {} \;
-		/usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" "$APPDIR/Contents/MacOS/zotero"
+
+		echo Signing binary
+		/usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" "$APPDIR/Contents/MacOS/jurism"
+
+		echo Verifying binary signature
+		/usr/bin/codesign --verify -vvvv "$APPDIR/Contents/MacOS/jurism"
 		
 		# Bundle and sign Safari App Extension
 		#
@@ -448,11 +454,13 @@ if [ $BUILD_MAC == 1 ]; then
 		fi
 		
 		# Sign final app package
-		echo
+		echo Signing app dir
 		/usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" "$APPDIR"
 		
 		# Verify app
+		echo Verifying app dir signature
 		/usr/bin/codesign --verify -vvvv "$APPDIR"
+		
 		# Verify Safari App Extension
 		if [[ -n "$SAFARI_APPEX" ]] && [[ -d "$SAFARI_APPEX" ]]; then
 			echo
@@ -472,42 +480,42 @@ if [ $BUILD_MAC == 1 ]; then
 				--sourcefile --volname Jurism --copy "$CALLDIR/mac/DSStore:/.DS_Store" \
 				--symlink /Applications:"/Drag Here to Install" > /dev/null
 		  #if [ false ]; then	
-#			# Upload disk image to Apple
-#			output=$("$CALLDIR/scripts/notarize_mac_app" "$dmg")
-#			echo
-#			echo "$output"
-#			echo
-#			id=$(echo "$output" | plutil -extract notarization-upload.RequestUUID xml1 -o - - | sed -n "s/.*<string>\(.*\)<\/string>.*/\1/p")
-#			echo "Notarization request identifier: $id"
-#			echo
-#			
-#			sleep 60
-#			
-#			# Check back every 30 seconds, for up to an hour
-#			i="0"
-#			while [ $i -lt 120 ]
-#			do
-#				status=$("$CALLDIR/scripts/notarization_status" $id)
-#				if [[ $status != "in progress" ]]; then
-#					break
-#				fi
-#				echo "Notarization in progress"
-#				sleep 30
-#				i=$[$i+1]
-#			done
-#			
-#			# Staple notarization info to disk image
-#			if [ $status == "success" ]; then
-#				"$CALLDIR/scripts/notarization_stapler" "$dmg"
-#			else
-#				echo "Notarization failed!"
-#
-#				"$CALLDIR/scripts/notarization_status" $id
-#				exit 1
-#			fi
-#			
-#			echo "Notarization complete"
-#		     fi
+			# Upload disk image to Apple
+			output=$("$CALLDIR/scripts/notarize_mac_app" "$dmg")
+			echo
+			echo "$output"
+			echo
+			id=$(echo "$output" | plutil -extract notarization-upload.RequestUUID xml1 -o - - | sed -n "s/.*<string>\(.*\)<\/string>.*/\1/p")
+			echo "Notarization request identifier: $id"
+			echo
+			
+			sleep 60
+			
+			# Check back every 30 seconds, for up to an hour
+			i="0"
+			while [ $i -lt 120 ]
+			do
+				status=$("$CALLDIR/scripts/notarization_status" $id)
+				if [[ $status != "in progress" ]]; then
+					break
+				fi
+				echo "Notarization in progress"
+				sleep 30
+				i=$[$i+1]
+			done
+			
+			# Staple notarization info to disk image
+			if [ $status == "success" ]; then
+				"$CALLDIR/scripts/notarization_stapler" "$dmg"
+			else
+				echo "Notarization failed!"
+
+				"$CALLDIR/scripts/notarization_status" $id
+				exit 1
+			fi
+			
+			echo "Notarization complete"
+			 fi
 		else
 			echo 'Not building on Mac; creating Mac distribution as a zip file'
 			rm -f "$DIST_DIR/Jurism_mac.zip"
