@@ -513,9 +513,7 @@ if [ $BUILD_MAC == 1 ]; then
 				"$CALLDIR/scripts/notarization_status" $id
 				exit 1
 			fi
-			
 			echo "Notarization complete"
-			 fi
 		else
 			echo 'Not building on Mac; creating Mac distribution as a zip file'
 			rm -f "$DIST_DIR/Jurism_mac.zip"
