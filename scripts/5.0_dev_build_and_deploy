@@ -6,7 +6,7 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 . "$ROOT_DIR/config.sh"
 
 CHANNEL="dev"
-BRANCH="jurism-6.0.20"
+BRANCH="jurism-6.0.22"
 # One day "jurism-5.0"?
 export SAFARI_APPEX="$ROOT_DIR/../safari-app-extension-builds/dev/ZoteroSafariExtension.appex"
 

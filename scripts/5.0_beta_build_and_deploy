@@ -12,7 +12,7 @@ cd "$SCRIPT_DIR"
 
 ./check_requirements_packaging continue
 
-hash=`./get_repo_branch_hash jurism-6.0.20`
+hash=`./get_repo_branch_hash jurism-6.0.22`
 source_dir=`./get_commit_files $hash`
 
 function cleanup {
