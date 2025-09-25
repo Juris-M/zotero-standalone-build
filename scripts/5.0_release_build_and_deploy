@@ -14,8 +14,6 @@ fi
 cd "$SCRIPT_DIR"
 ./check_requirements_packaging
 
-echo "Hello"
-
 hash=`./get_repo_branch_hash $BRANCH`
 source_dir=`./get_commit_files $hash`
 
