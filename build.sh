@@ -422,6 +422,7 @@ if [ $BUILD_MAC == 1 ]; then
 
 		# Sign app
 		entitlements_file="$CALLDIR/mac/entitlements.xml"
+		echo Invoking codesign ...
 		/usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" \
 			"$APPDIR/Contents/MacOS/pdftotext" \
 			"$APPDIR/Contents/MacOS/pdfinfo" \
@@ -430,12 +431,29 @@ if [ $BUILD_MAC == 1 ]; then
 		find "$APPDIR/Contents" -name '*.dylib' -exec /usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" {} \;
 		find "$APPDIR/Contents" -name '*.app' -exec /usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" {} \;
 
+		# Explode LibreOffice plugin and sign its binary library
+		#
+		LO_OXT_DIR="$CALLDIR/modules/zotero-libreoffice-integration/install"
+		unzip -d "$LO_OXT_DIR" "$LO_OXT_DIR/Zotero_OpenOffice_Integration.oxt"
+		unzip -d "$LO_OXT_DIR/external_jars" "$LO_OXT_DIR/external_jars/jna.jar"
+		find "$LO_OXT_DIR" -name libjnidispatch.jnilib -exec /usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" {} \;
+		cd "$LO_OXT_DIR/external_jars"
+		zip -r jna.jar com
+		rm -fR META-INF
+		rm -fR com
+
+		cd "$LO_OXT_DIR"
+		OXT_CONTENTS=$(find . -maxdepth 1 -mindepth 1 | grep -v "Zotero_OpenOffice_Integration.oxt")
+		zip -r Zotero_OpenOffice_Integration.oxt $OXT_CONTENTS
+		rm -fR $OXT_CONTENTS
+		cd "$CALLDIR"
+		
 		echo Signing binary
 		/usr/bin/codesign --force --options runtime --entitlements "$entitlements_file" --sign "$DEVELOPER_ID" "$APPDIR/Contents/MacOS/jurism"
 
 		echo Verifying binary signature
 		/usr/bin/codesign --verify -vvvv "$APPDIR/Contents/MacOS/jurism"
-		
+
 		# Bundle and sign Safari App Extension
 		#
 		# Even though it's signed by Xcode, we sign it again to make sure it matches the parent app signature
@@ -468,6 +486,7 @@ if [ $BUILD_MAC == 1 ]; then
 		fi
 	fi
 	echo FINISHED BASIC BUNDLING I GUESS
+
 	# Build and notarize disk image
 	if [ $PACKAGE == 1 ]; then
 		echo PACKAGE TOGGLE OK
