@@ -18,10 +18,10 @@ PDF_TOOLS_VERSION="0.0.5"
 PDF_TOOLS_URL="https://zotero-download.s3.amazonaws.com/pdftools/pdftools-$PDF_TOOLS_VERSION.tar.gz"
 
 # Whether to sign builds
-SIGN=0
+SIGN=1
 
 # OS X Developer ID certificate information
-DEVELOPER_ID=F0F1FE48DB909B263AC51C8215374D87FDC12121
+DEVELOPER_ID=""
 # Keychain and keychain password, if not building via the GUI
 KEYCHAIN=""
 KEYCHAIN_PASSWORD=""
