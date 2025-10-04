@@ -14,7 +14,8 @@
 	url = https://github.com/Juris-M/deployer.git
 [submodule "modules/zotero-word-for-mac-integration"]
 	path = modules/zotero-word-for-mac-integration
-	url = https://github.com/zotero/zotero-word-for-mac-integration.git
+	url = https://github.com/bblackham/jurism-word-for-mac-integration
+	branch = main
 [submodule "modules/zotero-word-for-windows-integration"]
 	path = modules/zotero-word-for-windows-integration
 	url = https://github.com/zotero/zotero-word-for-windows-integration.git
