@@ -39,6 +39,18 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 #echo
 #ls -la Plugins
 
+echo WARNING: The files downloaded by curl in this script will
+echo   be empty under Windows 11, and browsers will refuse to
+echo   download them as well. To acquire them, I resorted to
+echo   downloading them individually using a browser on *another
+echo   operating system*, then using an encrypted mail app to
+echo   get them into Windows, from whence I was able to download
+echo   them after loosening security parameters. Possibly loosening
+echo   security parameters alone would permit browser downloads
+echo   direct from within Windows, but I\'m too exhausted at this
+echo   point to investigate further. In short, though, it can be
+echo   done if you are stubborn enough and just keep trying fresh
+echo   strategies.
 mkdir -p Plugins
 cd Plugins
 plugins="AccessControl AppAssocReg ApplicationID InvokeShellVerb ShellLink UAC"
@@ -48,6 +60,6 @@ done
 
 echo
 echo
-echo "Files downloaded to ./Plugins -- move to ${NSIS_DIR}Plugins"
+echo "Files downloaded to ./Plugins -- move to ${NSIS_DIR}/Plugins/x86-unicode"
 echo
 ls -la
