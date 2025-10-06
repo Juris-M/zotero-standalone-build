@@ -67,37 +67,28 @@ fi
 INCR_FILENAME="incrementals-$CHANNEL-$PLATFORM"
 S3_URL="s3://$S3_BUCKET/$S3_DIST_PATH/$CHANNEL/incrementals-$PLATFORM"
 INCR_PATH="$DIST_DIR/$INCR_FILENAME"
-
-mkdir -p "$DIST_DIR"
-# aws s3 cp $S3_URL $INCR_PATH >&2
-if [ "$OSTYPE" == "cygwin" ]; then
-    node $(cygpath -am ../deployer/index.js) -q -d "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME" $(cygpath -am "$INCR_PATH")
+if [ "$PLATFORM" == "win" ]; then
+    INCR_PATH_WINDOWS=$(cygpath -w "$INCR_PATH")
 else
-    node ../deployer/index.js -q -d "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME" "$INCR_PATH"
+    INCR_PATH_WINDOWS="$INCR_PATH"
 fi
 
+mkdir -p "$DIST_DIR"
+echo cd to "$ROOT_DIR"
+cd "$ROOT_DIR"
+echo $(cygpath -w "$INCR_PATH")
+# aws s3 cp $S3_URL $INCR_PATH >&2
+node "./deployer/index.js" -q -d "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME" "$INCR_PATH_WINDOWS"
+
 # Add version to file and reupload
+
 if [ "$VERSION" ]; then
 	echo "Adding $VERSION to incrementals-$PLATFORM"
-    if [ "$OSTYPE" == "cygwin" ]; then
-		echo $VERSION >> $(cygpath -u "$INCR_PATH")
-    else
-		echo $VERSION >> "$INCR_PATH"
-    fi
-	# aws s3 cp $INCR_PATH $S3_URL
-
-	if [ "$OSTYPE" == "cygwin" ]; then
-		node $(cygpath -am ../deployer/index.js) -q -u $(cygpath -am "$INCR_PATH") "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME"
-	else
-		node ../deployer/index.js -q -u "$INCR_PATH" "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME"
-	fi
+	echo $VERSION >> "$INCR_PATH"
+	node "./deployer/index.js" -q -u "$INCR_PATH_WINDOWS" "$S3_DIST_PATH/${CHANNEL}s/incrementals-$PLATFORM/$INCR_FILENAME"
 
 # Show last n versions
 elif [ "$NUM_VERSIONS" ]; then
-     if [ "$OSTYPE" == "cygwin" ]; then
-	tail -n $NUM_VERSIONS $(cygpath -u "$INCR_PATH")
-     else
 	tail -n $NUM_VERSIONS "$INCR_PATH"
-     fi
 fi
 #rm "$INCR_PATH"

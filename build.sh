@@ -489,9 +489,7 @@ if [ $BUILD_MAC == 1 ]; then
 
 	# Build and notarize disk image
 	if [ $PACKAGE == 1 ]; then
-		echo PACKAGE TOGGLE OK
 		if [ $MAC_NATIVE == 1 ]; then
-			echo MAC_NATIVE OK
 			echo "Creating Mac installer"
 			dmg="$DIST_DIR/Jurism-$VERSION.dmg"
 			"$CALLDIR/mac/pkg-dmg" --source "$STAGE_DIR/Jurism.app" \
@@ -552,7 +550,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 		# FileVersion is limited to four integers, so it won't be properly updated for non-release
 		# builds (e.g., we'll show 5.0.97.0 for 5.0.97-beta.37). ProductVersion will be the full
 		# version string.
-		rcedit "`cygpath -w \"$APPDIR/jurism.exe\"`" \
+		"$CALLDIR/xulrunner/bin/rcedit" "`cygpath -w \"$APPDIR/jurism.exe\"`" \
 			--set-file-version "$VERSION_NUMERIC" \
 			--set-product-version "$VERSION"
 	fi
@@ -613,10 +611,9 @@ if [ $BUILD_WIN32 == 1 ]; then
 	cat "$CALLDIR/modules/zotero-libreoffice-integration/defaults/preferences/zoteroOpenOfficeIntegration.js" >> "$APPDIR/defaults/preferences/prefs.js"
 	echo >> "$APPDIR/defaults/preferences/prefs.js"
 	echo
-
 	# Delete extraneous files
 	find "$APPDIR" -depth -type d -name .git -exec rm -rf {} \;
-	find "$APPDIR" \( -name .DS_Store -or -name '.git*' -or -name '.travis.yml' -or -name update.rdf -or -name '*.bak' \) -exec rm -f {} \;
+	find "$APPDIR" -maxdepth 1 \( -name .DS_Store -or -name '.git*' -or -name '.travis.yml' -or -name update.rdf -or -name '*.bak' \) -exec rm -rf {} \;
 	find "$APPDIR/extensions" -depth -type d -name build -exec rm -rf {} \;
 	find "$APPDIR" \( -name '*.exe' -or -name '*.dll' \) -exec chmod 755 {} \;
 	
@@ -625,7 +622,7 @@ if [ $BUILD_WIN32 == 1 ]; then
 		
 	# Delete extraneous files
 	${GFIND} "$APPDIR" -depth -type d -name .git -exec rm -rf {} \;
-	${GFIND} "$APPDIR" \( -name .DS_Store -or -name '.git*' -or -name '.travis.yml' -or -name update.rdf -or -name '*.bak' \) -exec rm -f {} \;
+	${GFIND} "$APPDIR" -maxdepth 1 \( -name .DS_Store -or -name '.git*' -or -name '.travis.yml' -or -name update.rdf -or -name '*.bak' \) -exec rm -f {} \;
 	${GFIND} "$APPDIR/extensions" -depth -type d -name build -exec rm -rf {} \;
 	${GFIND} "$APPDIR" \( -name '*.exe' -or -name '*.dll' \) -exec chmod 755 {} \;
 	${GFIND} "$APPDIR/extensions" -depth -type d -name node_modules -exec rm -rf {} \;
@@ -641,7 +638,8 @@ if [ $BUILD_WIN32 == 1 ]; then
 			
 			# Build and sign uninstaller
 			perl -pi -e "s/\{\{VERSION}}/$VERSION/" "$BUILD_DIR/win_installer/defines.nsi"
-			"`cygpath -u \"${NSIS_DIR}makensis.exe\"`" /V1 "`cygpath -w \"$BUILD_DIR/win_installer/uninstaller.nsi\"`"
+			
+"`cygpath -u \"${NSIS_DIR}makensis.exe\"`" /V1 "`cygpath -w \"$BUILD_DIR/win_installer/uninstaller.nsi\"`"
 			mkdir "$APPDIR/uninstall"
 			mv "$BUILD_DIR/win_installer/helper.exe" "$APPDIR/uninstall"
 			

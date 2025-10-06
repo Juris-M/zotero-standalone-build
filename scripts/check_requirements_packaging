@@ -18,8 +18,8 @@ if [ $WIN_NATIVE == 1 ]; then
 	
 	if [ $SIGN -gt 0 ]; then
 		echo -n "Checking for signtool: "
-		if [ -x "`cygpath -u \"$SIGNTOOL\"`" ]; then
-			echo "`cygpath -u \"$SIGNTOOL\"`"
+		if [ -x "$SIGNTOOL" ]; then
+			echo "$SIGNTOOL"
 		else
 			$FAIL_CMD
 			FAILED=1
@@ -27,14 +27,14 @@ if [ $WIN_NATIVE == 1 ]; then
 	fi
 	
 	echo -n "Checking for Unicode NSIS: "
-	if [ -x "`cygpath -u \"${NSIS_DIR}makensis.exe\"`" ]; then
-		echo "`cygpath -u \"${NSIS_DIR}makensis.exe\"`"
+	if [ -x "${NSIS_DIR}/makensis.exe" ]; then
+		echo "${NSIS_DIR}/makensis.exe"
 	else
 		$FAIL_CMD
 		FAILED=1
 	fi
 	
-	plugin_path=$(cd "$NSIS_DIR\\Plugins" && pwd)
+	plugin_path=$(cd "$NSIS_DIR/Plugins/x86-unicode" && pwd)
 	plugins="AppAssocReg ApplicationID InvokeShellVerb ShellLink UAC"
 	echo "Checking for NSIS plugins in $plugin_path"
 	for i in $plugins; do

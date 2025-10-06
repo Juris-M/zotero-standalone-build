@@ -1,6 +1,8 @@
 #!/bin/bash
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+. "$ROOT_DIR/config.sh"
 
 . $SCRIPT_DIR/check_requirements_common
 . $SCRIPT_DIR/check_requirements_build continue
@@ -22,23 +24,16 @@ which rsync || { $FAIL_CMD; FAILED=1; }
 echo -n "Checking for sha512sum/shasum: "
 which sha512sum 2>/dev/null || which shasum 2>/dev/null || { $FAIL_CMD; FAILED=1; }
 
+cd "$ROOT_DIR"
 echo -n "Checking for deployer script: "
-ls $SCRIPT_DIR/../deployer/bin/deployer || { $FAIL_CMD; FAILED=1; }
+ls "./deployer/bin/deployer" || { $FAIL_CMD; FAILED=1; }
 
 echo -n "Checking for GitHub release access: "
-if [ "$OSTYPE" == "cygwin" ]; then
-    node $(cygpath -am $SCRIPT_DIR/../deployer/index.js) -q -v || { $FAIL_CMD; FAILED=1; }
-    echo ""
-else
-    node $SCRIPT_DIR/../deployer/index.js -q -v || { $FAIL_CMD; FAILED=1; }
-    echo ""
-fi
+node "./deployer/index.js" -q -v || { $FAIL_CMD; FAILED=1; }
+echo ""
+
 echo -n "Checking for deploy host directory access: "
-if [ "$OSTYPE" == "cygwin" ]; then
-    ssh "$DEPLOY_HOST" ls -d $(cygpath -u "$DEPLOY_PATH")
-else
-    ssh "$DEPLOY_HOST" ls -d "$DEPLOY_PATH"
-fi
+ssh "$DEPLOY_HOST" ls -d "$DEPLOY_PATH"
 if [ $? -gt 0 ]; then
   FAILED=1;
 else

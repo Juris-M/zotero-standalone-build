@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# Variables
+#   + CHANNEL (option -c)
+#   + PLATFORMS (option -p)
+#   + ok OSTYPE
+#   + ok DEPLOY_PATH
+#   + ok DEPLOY_HOST
+#   + ok STAGE_DIR
+#   + TEMP_DIR
+#   + VERSION
+#   + DIST_DIR
+#   + channel_deploy_path
+#   + BUILD_ID
+#   + SCRIPT_DIR
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+. "$ROOT_DIR/config.sh"
+
+function usage {
+	cat >&2 <<DONE
+Usage: $0 -d SOURCE_DIR -c CHANNEL -p PLATFORMS
+ -c CHANNEL          Release channel ('release', 'beta', 'dev')
+ -p PLATFORMS        Platforms to build (m=Mac, w=Windows, l=Linux)
+DONE
+	exit 1
+}
+
+CHANNEL=""
+PLATFORMS=""
+while getopts "c:p:" opt; do
+	case $opt in
+		c)
+			CHANNEL="$OPTARG"
+			;;
+		p)
+			PLATFORMS="$OPTARG"
+			;;
+		*)
+			usage
+			;;
+	esac
+	shift $((OPTIND-1)); OPTIND=1
+done
+
+if [[ -z "$CHANNEL" ]] || [[ -z "$PLATFORMS" ]]; then
+	usage
+fi
+
+TEMP_DIR=$(mktemp -d)
+
+SOURCE_DIR="$ZOTERO_BUILD_DIR/xpi/build/staging"
+
+VERSION="`perl -ne 'print and last if s/.*<em:version>(.*)<\/em:version>.*/\1/;' \"$SOURCE_DIR\"/install.rdf`"
+if [ -z "$VERSION" ]; then
+	echo "Error getting version from $SOURCE_DIR/install.rdf"
+	exit 1
+fi
+
+DIST_DIR="$ROOT_DIR/dist"
+channel_deploy_path="$DEPLOY_PATH/$CHANNEL"
+
+BUILD_ID=`cat "$DIST_DIR/build_id"`
+if [ -z "$BUILD_ID" ]; then
+	echo "Error getting build id"
+	exit 1
+fi
+
+#####
+
+# Upload file lists for each platform
+channel_deploy_path="$DEPLOY_PATH/$CHANNEL"
+mkdir "$TEMP_DIR/version_info"
+chmod g+ws "$TEMP_DIR/version_info"
+cp "$DIST_DIR"/files-* "$TEMP_DIR/version_info"
+chmod g+w "$TEMP_DIR"/version_info/files-*
+
+echo rsync from: "$TEMP_DIR/version_info/"
+echo rsync to: "$DEPLOY_HOST:$channel_deploy_path/$VERSION/"
+
+rsync -rv "$TEMP_DIR/version_info/" "$DEPLOY_HOST:$channel_deploy_path/$VERSION/"
+
+# Download updates JSON for each platform, update it, and reupload it
+for i in `seq 0 1 $((${#PLATFORMS}-1))`
+do
+	case ${PLATFORMS:i:1} in
+		m)
+			architectures="mac"
+			;;
+		w)
+			architectures="win32"
+			;;
+		l)
+			architectures="linux-i686 linux-x86_64"
+			;;
+	esac
+
+	for arch in $architectures;
+	do
+		jsonfile="updates-$arch.json"
+		scp $DEPLOY_HOST:"$channel_deploy_path/$jsonfile" "$TEMP_DIR/$jsonfile"
+		"$ROOT_DIR/update-packaging/add_version_info" -f "$TEMP_DIR/$jsonfile" -v $VERSION -b $BUILD_ID
+		scp "$TEMP_DIR/$jsonfile" "${DEPLOY_HOST}:$channel_deploy_path/$jsonfile"
+	done
+done
+
+# Add version to incremental lists
+echo
+for i in `seq 0 1 $((${#PLATFORMS}-1))`
+do
+	"$SCRIPT_DIR/manage_incrementals" -c "$CHANNEL" -p ${PLATFORMS:i:1} -a "$VERSION"
+done
+
+#$DEPLOY_CMD
+
+rm -rf "$STAGE_DIR"/*
+
+echo Done!
